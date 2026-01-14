@@ -15,8 +15,7 @@ sonarqubeScanner(
       'sonar.token': String(process.env.SONAR_TOKEN),
       'sonar.sources': 'src',
       'sonar.inclusions': 'src/**/*.ts',
-      'sonar.projectKey': '<project name>',
-      'sonar.organization': '<organization name>',
+      'sonar.projectKey': 'nest-mbras-technical-test-developer',
       'sonar.host.url': String(process.env.SONAR_URL),
       // unit tests
       'sonar.tests': 'src',
@@ -46,7 +45,7 @@ sonarqubeScanner(
       **/mock/**,\
       **/mocks/**,\
       **/dto/**,\
-      **/config/**,\
+      **/configs/**,\
       **/interfaces/**,\
       **/*.js,\
       **/coverage/**',

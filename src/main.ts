@@ -23,5 +23,7 @@ async function bootstrap() {
     }),
   );
   await app.listen(configService.get<number>('PORT') ?? 3000);
+  logger.debug(`sever on in ${await app.getUrl()}`);
+  logger.debug(`swagger on in ${await app.getUrl()}/swagger`);
 }
 bootstrap().catch((error) => logger.error(error));

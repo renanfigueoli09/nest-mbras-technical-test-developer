@@ -39,7 +39,7 @@ export class AnalyzerService {
       throw new NotAcceptableException('Text too long');
     }
 
-    if (userId && userId.length === 0) {
+    if (typeof userId === 'string' && userId.length === 0) {
       throw new NotAcceptableException('Invalid userId');
     }
 
