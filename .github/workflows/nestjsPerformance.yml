@@ -3,69 +3,69 @@ name: NestJS Performance Test
 on: [push]
 
 jobs:
-  performance:
-    runs-on: ubuntu-latest
+    performance:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.13'
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22.13"
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+            - name: Install pnpm
+              run: npm install -g pnpm
 
-      - name: Install dependencies
-        run: pnpm install
+            - name: Install dependencies
+              run: pnpm install
 
-      - name: Build NestJS application
-        run: pnpm run build
+            - name: Build NestJS application
+              run: pnpm run build
 
-      - name: Start NestJS application
-        run: pnpm run start:prod &
-        env:
-          PORT: 3000 
-        shell: bash
+            - name: Start NestJS application
+              run: pnpm run start:prod &
+              env:
+                  PORT: 3000
+              shell: bash
 
-      - name: Wait for app to start
-        run: sleep 10
-        shell: bash
+            - name: Wait for app to start
+              run: sleep 10
+              shell: bash
 
-      - name: Install Autocannon
-        run: npm install -g autocannon
+            - name: Install Autocannon
+              run: npm install -g autocannon
 
-      - name: Run Performance Test
-        id: performance_test
-        run: |
-          PERF_REPORT=$(autocannon -c 10 -d 10 -m POST \
-            -H 'Content-Type: application/json' \
-            -b '{"text": "Esta é uma mensagem de teste para análise de sentimento.", "userId": "user_test_123"}' \
-            http://localhost:3000/analyze)
-          echo "$PERF_REPORT"
-          echo "$PERF_REPORT" > performance_report.txt
-          
-          # Extract average latency from the report
-          AVG_LATENCY=$(echo "$PERF_REPORT" | grep 'Latency' | awk '{print $6}')
-          echo "Average Latency: $AVG_LATENCY ms"
+            - name: Run Performance Test
+              id: performance_test
+              run: |
+                  PERF_REPORT=$(autocannon -c 10 -d 10 -m POST \
+                    -H 'Content-Type: application/json' \
+                    -b '{"text": "Esta é uma mensagem de teste para análise de sentimento.", "userId": "user_test_123"}' \
+                    http://localhost:3000/analyze )
+                  echo "$PERF_REPORT"
+                  echo "$PERF_REPORT" > performance_report.txt
 
-          # Define the threshold (200ms)
-          THRESHOLD=200
+                  # Extract average latency from the report more robustly
+                  AVG_LATENCY=$(echo "$PERF_REPORT" | grep 'Latency' | awk -F'│' '{print $7}' | awk '{print $1}')
+                  echo "Average Latency: $AVG_LATENCY ms"
 
-          # Compare and set job status
-          # Using 'bc' for floating point comparison
-          if (( $(echo "$AVG_LATENCY > $THRESHOLD" | bc -l) )); then
-            echo "Performance test failed: Average latency ($AVG_LATENCY ms) is above threshold ($THRESHOLD ms)."
-            exit 1
-          else
-            echo "Performance test passed: Average latency ($AVG_LATENCY ms) is within threshold ($THRESHOLD ms)."
-          fi
-        shell: bash
+                  # Define the threshold (200ms)
+                  THRESHOLD=200
 
-      - name: Upload performance report
-        uses: actions/upload-artifact@v4
-        with:
-          name: performance-report
-          path: performance_report.txt
+                  # Compare and set job status
+                  # Using 'bc' for floating point comparison
+                  if (( $(echo "$AVG_LATENCY > $THRESHOLD" | bc -l) )); then
+                    echo "Performance test failed: Average latency ($AVG_LATENCY ms) is above threshold ($THRESHOLD ms)."
+                    exit 1
+                  else
+                    echo "Performance test passed: Average latency ($AVG_LATENCY ms) is within threshold ($THRESHOLD ms)."
+                  fi
+              shell: bash
+
+            - name: Upload performance report
+              uses: actions/upload-artifact@v4
+              with:
+                  name: performance-report
+                  path: performance_report.txt
