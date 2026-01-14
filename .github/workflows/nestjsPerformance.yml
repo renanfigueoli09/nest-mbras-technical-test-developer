@@ -37,17 +37,22 @@ jobs:
             - name: Install Autocannon
               run: npm install -g autocannon
 
-            - name: Run Performance Test
-              id: performance_test
+            - name: Run Performance Test (Display Table)
+              run: |
+                  autocannon -c 10 -d 10 -m POST \
+                    -H 'Content-Type: application/json' \
+                    -b '{"text": "Esta é uma mensagem de teste para análise de sentimento.", "userId": "user_test_123"}' \
+                    http://localhost:3000/analyze
+              shell: bash
+
+            - name: Run Performance Test (JSON for Validation)
+              id: performance_validation
               run: |
                   PERF_JSON_REPORT=$(autocannon --json -c 10 -d 10 -m POST \
                     -H 'Content-Type: application/json' \
                     -b '{"text": "Esta é uma mensagem de teste para análise de sentimento.", "userId": "user_test_123"}' \
-                    http://localhost:3000/analyze )
+                    http://localhost:3000/analyze)
                   echo "$PERF_JSON_REPORT" > performance_report.json
-
-                  # Pretty print JSON report to stdout for easier debugging
-                  echo "$PERF_REPORT" | jq .
 
                   # Extract average latency using jq
                   AVG_LATENCY=$(echo "$PERF_JSON_REPORT" | jq -r '.latency.average')
@@ -62,7 +67,7 @@ jobs:
                     echo "Performance test failed: Average latency ($AVG_LATENCY ms) is above threshold ($THRESHOLD ms)."
                     exit 1
                   else
-                    echo "Performance test passed: Average latency ($AVG_LATENCY ms) is within threshold ($THRESHOLD ms)."
+                    echo "Performance test passed: Average Latency ($AVG_LATENCY ms) is within threshold ($THRESHOLD ms)."
                   fi
               shell: bash
 
