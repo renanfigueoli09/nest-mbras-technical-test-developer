@@ -123,7 +123,7 @@ describe('AnalyzerService', () => {
 
     it('deterministicFollowers throws when given non-string (private method access)', () => {
       // call private method via any to assert the internal guard
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       expect(() => (service as any).deterministicFollowers(123)).toThrow(
         'userId must be string',
       );
