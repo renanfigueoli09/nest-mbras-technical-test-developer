@@ -1,0 +1,7 @@
+npx commitlint --edit "$1" > /dev/null 2>&1 || {
+  echo
+  echo "❌ Commit inválido! Use o padrão: <tipo>: <descrição>"
+  echo "Exemplo: feat: adiciona endpoint de usuários"
+  echo
+  exit 1
+}

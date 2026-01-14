@@ -1,0 +1,2 @@
+npm run test --silent || { echo "Os testes não passaram. Corrija os testes antes de fazer um commit."; exit 1; }
+
