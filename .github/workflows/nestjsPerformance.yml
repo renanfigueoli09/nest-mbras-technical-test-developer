@@ -40,15 +40,17 @@ jobs:
             - name: Run Performance Test
               id: performance_test
               run: |
-                  PERF_REPORT=$(autocannon -c 10 -d 10 -m POST \
+                  PERF_JSON_REPORT=$(autocannon --json -c 10 -d 10 -m POST \
                     -H 'Content-Type: application/json' \
                     -b '{"text": "Esta é uma mensagem de teste para análise de sentimento.", "userId": "user_test_123"}' \
                     http://localhost:3000/analyze )
-                  echo "$PERF_REPORT"
-                  echo "$PERF_REPORT" > performance_report.txt
+                  echo "$PERF_JSON_REPORT" > performance_report.json
 
-                  # Extract average latency from the report more robustly
-                  AVG_LATENCY=$(echo "$PERF_REPORT" | grep 'Latency' | awk -F'│' '{print $7}' | awk '{print $1}')
+                  # Pretty print JSON report to stdout for easier debugging
+                  echo "$PERF_REPORT" | jq .
+
+                  # Extract average latency using jq
+                  AVG_LATENCY=$(echo "$PERF_JSON_REPORT" | jq -r '.latency.average')
                   echo "Average Latency: $AVG_LATENCY ms"
 
                   # Define the threshold (200ms)
@@ -68,4 +70,4 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: performance-report
-                  path: performance_report.txt
+                  path: performance_report.json
